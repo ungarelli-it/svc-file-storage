@@ -13,8 +13,10 @@ spec:
         paths:
           - path:
             backend:
-              serviceName: ${APP_NAME}
-              servicePort: 8080
+              service:
+                name: ${APP_NAME}
+                port:
+                  number: 8080
   tls:
     - hosts:
         - ${APP_NAME}.${APP_DOMAIN}
