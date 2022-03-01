@@ -1,0 +1,23 @@
+server:
+  servlet.context-path: ${CONTEXT:/example}
+  port: ${PORT:8081}
+
+logging:
+  level:
+    root: WARN
+    it.ungarelli: ${LOG_LEVEL:TRACE}
+
+local:
+  destination: ${DESTINATION:/tmp/example}
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 500KB
+      max-request-size: 500KB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

@@ -1,0 +1,72 @@
+name: Main Pipeline
+
+on:
+  push:
+    branches: ["*", "**/*"]
+    tags: ["*", "**/*"]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  APP_NAMESPACE: hlg
+  APP_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          file: .ci/Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install Digital Ocean client
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.TOKEN }}
+      - name: Save Digital Ocean kubeconfig
+        env:
+          CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+        run: doctl kubernetes cluster kubeconfig save $CLUSTER_NAME
+      - name: Deploy
+        env:
+          APP_DOMAIN: ${{env.APP_NAMESPACE}}.${{ secrets.DOMAIN }}
+          BRANCH_NAME: ${GITHUB_REF_NAME}
+        run: |
+          envsubst < .ci/claim.yaml > .ci/k8s-4642-claim.yaml
+          envsubst < .ci/secret.yaml > .ci/k8s-4642-secret.yaml
+          envsubst < .ci/service.yaml > .ci/k8s-4642-service.yaml
+          envsubst < .ci/deployment.yaml > .ci/k8s-4642-deployment.yaml
+          envsubst < .ci/ingress.yaml > .ci/k8s-4642-ingress.yaml
+          kubectl apply -f .ci/k8s-4642-claim.yaml
+          kubectl apply -f .ci/k8s-4642-secret.yaml
+          kubectl apply -f .ci/k8s-4642-service.yaml
+          kubectl apply -f .ci/k8s-4642-deployment.yaml
+          kubectl apply -f .ci/k8s-4642-ingress.yaml
+      - name: Verify deployment
+        run: kubectl rollout status -n ${APP_NAMESPACE} deployment/${APP_NAME}
