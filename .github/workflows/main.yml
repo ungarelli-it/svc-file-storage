@@ -65,15 +65,15 @@ jobs:
           APP_DOMAIN: ${{env.APP_NAMESPACE}}.${{ secrets.DOMAIN }}
           BRANCH_NAME: ${GITHUB_REF_NAME}
         run: |
-          envsubst < .ci/claim.yaml > .ci/k8s-4642-claim.yaml
-          envsubst < .ci/secret.yaml > .ci/k8s-4642-secret.yaml
-          envsubst < .ci/service.yaml > .ci/k8s-4642-service.yaml
-          envsubst < .ci/deployment.yaml > .ci/k8s-4642-deployment.yaml
-          envsubst < .ci/ingress.yaml > .ci/k8s-4642-ingress.yaml
-          kubectl apply -f .ci/k8s-4642-claim.yaml
-          kubectl apply -f .ci/k8s-4642-secret.yaml
-          kubectl apply -f .ci/k8s-4642-service.yaml
-          kubectl apply -f .ci/k8s-4642-deployment.yaml
-          kubectl apply -f .ci/k8s-4642-ingress.yaml
+          envsubst < .ci/claim.yml > .ci/k8s-4642-claim.yml
+          envsubst < .ci/secret.yml > .ci/k8s-4642-secret.yml
+          envsubst < .ci/service.yml > .ci/k8s-4642-service.yml
+          envsubst < .ci/deployment.yml > .ci/k8s-4642-deployment.yml
+          envsubst < .ci/ingress.yml > .ci/k8s-4642-ingress.yml
+          kubectl apply -f .ci/k8s-4642-claim.yml
+          kubectl apply -f .ci/k8s-4642-secret.yml
+          kubectl apply -f .ci/k8s-4642-service.yml
+          kubectl apply -f .ci/k8s-4642-deployment.yml
+          kubectl apply -f .ci/k8s-4642-ingress.yml
       - name: Verify deployment
         run: kubectl rollout status -n ${APP_NAMESPACE} deployment/${APP_NAME}

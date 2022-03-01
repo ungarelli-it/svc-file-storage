@@ -29,7 +29,7 @@ spec:
           mountPath: /data
       containers:
       - name: ${APP_NAME}
-        image: ungarelli/${APP_NAME}:latest
+        image: ghcr.io/ungarelli-corp/${APP_NAME}:${BRANCH_NAME}
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
