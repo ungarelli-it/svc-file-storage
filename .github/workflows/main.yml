@@ -60,16 +60,19 @@ jobs:
         env:
           CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
         run: doctl kubernetes cluster kubeconfig save $CLUSTER_NAME
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
       - name: Deploy
         env:
           APP_DOMAIN: ${{env.NAMESPACE}}.${{ secrets.DOMAIN }}
-          BRANCH_NAME: ${{env.GITHUB_REF_NAME}}
         run: |
+          export BRANCH_NAME=${GITHUB_REF##*/}
           envsubst < .ci/claim.yml > .ci/k8s-4642-claim.yml
           envsubst < .ci/secret.yml > .ci/k8s-4642-secret.yml
           envsubst < .ci/service.yml > .ci/k8s-4642-service.yml
           envsubst < .ci/deployment.yml > .ci/k8s-4642-deployment.yml
-          cat .ci/k8s-4642-deployment.yml
           envsubst < .ci/ingress.yml > .ci/k8s-4642-ingress.yml
           kubectl apply -f .ci/k8s-4642-claim.yml
           kubectl apply -f .ci/k8s-4642-secret.yml
