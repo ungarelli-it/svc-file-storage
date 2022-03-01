@@ -8,7 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  APP_NAMESPACE: hlg
+  NAMESPACE: hlg
   APP_NAME: ${{ github.event.repository.name }}
 
 jobs:
@@ -62,7 +62,7 @@ jobs:
         run: doctl kubernetes cluster kubeconfig save $CLUSTER_NAME
       - name: Deploy
         env:
-          APP_DOMAIN: ${{env.APP_NAMESPACE}}.${{ secrets.DOMAIN }}
+          APP_DOMAIN: ${{env.NAMESPACE}}.${{ secrets.DOMAIN }}
           BRANCH_NAME: ${GITHUB_REF_NAME}
         run: |
           envsubst < .ci/claim.yml > .ci/k8s-4642-claim.yml
@@ -76,4 +76,4 @@ jobs:
           kubectl apply -f .ci/k8s-4642-deployment.yml
           kubectl apply -f .ci/k8s-4642-ingress.yml
       - name: Verify deployment
-        run: kubectl rollout status -n ${APP_NAMESPACE} deployment/${APP_NAME}
+        run: kubectl rollout status -n ${NAMESPACE} deployment/${APP_NAME}
