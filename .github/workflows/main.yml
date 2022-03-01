@@ -60,10 +60,6 @@ jobs:
         env:
           CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
         run: doctl kubernetes cluster kubeconfig save $CLUSTER_NAME
-      - name: Extract branch name
-        shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
       - name: Deploy
         env:
           APP_DOMAIN: ${{env.NAMESPACE}}.${{ secrets.DOMAIN }}
