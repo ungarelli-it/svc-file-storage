@@ -109,7 +109,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<mainClass>it.ungarelli.main.MainApplication</mainClass>
+					<mainClass>it.ungarelli.svcfilestorage.main.MainApplication</mainClass>
 				</configuration>
 				<executions>
 					<execution>
